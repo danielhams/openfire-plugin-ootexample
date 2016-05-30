@@ -13,6 +13,8 @@ public class ExamplePlugin implements Plugin
 
     public static final String PLUGIN_NAME = "example";
 
+    private final ExampleLib exampleLib = new ExampleLib();
+
     @Override
     public void initializePlugin( final PluginManager manager, final File pluginDirectory )
     {
@@ -27,6 +29,6 @@ public class ExamplePlugin implements Plugin
 
     public String getPluginString()
     {
-        return "Hello, this is the ExamplePlugin.";
+        return "Hello, this is the ExamplePlugin. The library says '" + exampleLib.getLibString() + "'";
     }
 }

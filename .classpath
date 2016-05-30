@@ -76,5 +76,6 @@
 	<classpathentry kind="lib" path="/openfire/build/lib/merge/websocket-servlet.jar"/>
 	<classpathentry kind="lib" path="/openfire/build/lib/merge/xpp3.jar"/>
 	<classpathentry kind="lib" path="/openfire/target/openfire/lib/openfire.jar"/>
+	<classpathentry kind="lib" path="lib/examplelib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

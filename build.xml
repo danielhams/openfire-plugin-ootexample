@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+
+<!--
+    This software is published under the terms of the Apache License, Version 2.0,
+    a copy of which is included in this distribution.
+-->
+
+<!--
+    Build Requirements:
+
+        * Ant 1.7.1 or higher (including optional tasks)
+        * JDK 1.7 or higher
+-->
+
+<project name="Openfire Out Of Tree Plugin Example" default="plugin-build" basedir=".">
+
+    <description>
+        Openfire out of tree build script.
+    </description>
+
+    <!-- ======================================================================================= -->
+    <!-- GLOBAL PROPERTIES                                                                       -->
+    <!-- ======================================================================================= -->
+    <property environment="env"/>
+
+	<property name="javac.source" value="1.7"/>
+	<property name="javac.target" value="1.7"/>
+
+    <property name="classes.dir" value="${basedir}/classes"/>
+    <property name="database.dir" value="${basedir}/database"/>
+    <property name="i18n.dir" value="${basedir}/i18n"/>
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="web.dir" value="${basedir}/web"/>
+    <property name="src.dir" value="${basedir}/src"/>
+
+    <property name="work.dir" value="${basedir}/work"/>
+	
+    <echo>Openfire Home is set to ${env.OPENFIRE_HOME}</echo>
+
+    <condition property="openfire.home" value="${env.OPENFIRE_HOME}">
+      <isset property="env.OPENFIRE_HOME"/>
+    </condition>
+    <fail unless="openfire.home" message="OPENFIRE_HOME environment variable must be set to the root of an openfire source directory"/>
+	
+	<property name="lib.ant.dir" value="${openfire.home}/build/lib/ant"/>
+	<path id="ant.dependencies">
+        <fileset dir="${lib.ant.dir}" includes="*.jar"/>
+        <fileset dir="${ant.home}/lib" includes="ant.jar"/>
+	</path>
+    
+    <!-- Reference DTDs and XSDs on the classpath, to prevent them from being looked up online. -->
+    <xmlcatalog id="dtds">
+        <!-- Provided on the classpath (by Jetty/Jasper) -->
+        <entity publicId="http://java.sun.com/xml/ns/j2ee" location="javax/servlet/jsp/resources/jsp_2_0.xsd"/>
+        <entity publicId="http://java.sun.com/xml/ns/javaee" location="javax/servlet/jsp/resources/jsp_2_1.xsd"/>
+        <entity publicId="http://java.sun.com/xml/ns/javaee" location="javax/servlet/jsp/resources/jsp_2_2.xsd"/>
+        <entity publicId="http://xmlns.jcp.org/xml/ns/javaee" location="javax/servlet/jsp/resources/jsp_2_3.xsd"/>
+        <entity publicId="http://java.sun.com/JSP/Page" location="javax/servlet/jsp/resources/jspxml_2_0.xsd"/>
+        <entity publicId="http://java.sun.com/xml/ns/j2ee" location="javax/servlet/jsp/resources/web-jsptaglibrary_2_0.xsd"/>
+        <entity publicId="http://java.sun.com/xml/ns/javaee" location="javax/servlet/jsp/resources/web-jsptaglibrary_2_1.xsd"/>
+        <dtd publicId="http://java.sun.com/JSP/Page" location="javax/servlet/jsp/resources/jspxml_2_0.dtd"/>
+        <dtd publicId="-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" location="javax/servlet/jsp/resources/web-jsptaglibrary_1_2.dtd"/>
+
+        <!-- Provided in the lib folder -->
+        <dtd publicId="-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" location="${lib.ant.dir}/web-app_2_3.dtd"/>
+    </xmlcatalog>
+
+    <!-- ======================================================================================= -->
+    <!-- GLOBAL TASKDEFs                                                                         -->
+    <!-- ======================================================================================= -->
+
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath refid="ant.dependencies" />
+    </taskdef>
+    <taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask">
+        <classpath refid="ant.dependencies" />
+    </taskdef>
+    <taskdef name="propertymerge" classname="org.jugbb.ant.propertymerge.PropertyMergeTask">
+        <classpath refid="ant.dependencies" />
+    </taskdef>
+    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+        <classpath refid="ant.dependencies" />
+    </taskdef>
+
+    <!-- ======================================================================================= -->
+    <!-- PATHs / PATTERNSETs / FILTERSETs                                                        -->
+    <!-- ======================================================================================= -->
+
+    <!-- ======================================================================================= -->
+    <!-- TARGETs                                                                                 -->
+    <!-- ======================================================================================= -->
+
+    <!-- init ================================================================================== -->
+    <target name="init">
+
+        <!-- Check for min build requirements -->
+
+        <condition property="ant.not.ok" value="true">
+            <not>
+                <antversion atleast="1.7.1"/>
+            </not>
+        </condition>
+        <condition property="java.not.ok" value="true">
+            <not>
+                <or>
+                    <contains string="${ant.java.version}" substring="1.7"/>
+                    <contains string="${ant.java.version}" substring="1.8"/>
+                    <contains string="${ant.java.version}" substring="1.9"/>
+                </or>
+            </not>
+        </condition>
+        <fail if="ant.not.ok" message="Must use Ant 1.7.1 or higher to build Openfire"/>
+        <fail if="java.not.ok" message="Must use JDK 1.7 or higher to build Openfire"/>
+
+        <tstamp/>
+        <tstamp>
+            <format property="builddate" pattern="MM/dd/yyyy"/>
+        </tstamp>
+        <tstamp>
+            <format property="dailybuild.tstamp" pattern="yyyy-MM-dd" locale="en"/>
+        </tstamp>
+
+        <mkdir dir="${work.dir}"/>
+
+    </target>
+    <target name="plugin-build">
+      <echo>About to build</echo>
+    </target>
+</project>
