@@ -1,5 +1,10 @@
 <%@ page import="example.*"%>
 
+<%
+    ExamplePluginHelper helper = new ExamplePluginHelper();
+    String pluginString = helper.getPluginString();
+%>
+
 <html>
     <head>
         <title>Example Page</title>
