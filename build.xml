@@ -21,20 +21,16 @@
     <!-- ======================================================================================= -->
     <!-- GLOBAL PROPERTIES                                                                       -->
     <!-- ======================================================================================= -->
+	<property name="plugin.name" value="ootexample"/>
+
     <property environment="env"/>
 
 	<property name="javac.source" value="1.7"/>
 	<property name="javac.target" value="1.7"/>
 
-    <property name="classes.dir" value="${basedir}/classes"/>
-    <property name="database.dir" value="${basedir}/database"/>
-    <property name="i18n.dir" value="${basedir}/i18n"/>
-    <property name="lib.dir" value="${basedir}/lib"/>
-    <property name="web.dir" value="${basedir}/web"/>
-    <property name="src.dir" value="${basedir}/src"/>
-
     <property name="work.dir" value="${basedir}/work"/>
-	
+	<property name="build.dir" value="${basedir}/build"/>
+
     <echo>Openfire Home is set to ${env.OPENFIRE_HOME}</echo>
 
     <condition property="openfire.home" value="${env.OPENFIRE_HOME}">
@@ -85,6 +81,9 @@
     <!-- ======================================================================================= -->
     <!-- PATHs / PATTERNSETs / FILTERSETs                                                        -->
     <!-- ======================================================================================= -->
+	<presetdef name="of.javac">
+	   <javac encoding="utf8" source="${javac.source}" target="${javac.target}" includeAntRuntime="no" debug="on"/>
+	</presetdef>
 
     <!-- ======================================================================================= -->
     <!-- TARGETs                                                                                 -->
@@ -120,10 +119,76 @@
             <format property="dailybuild.tstamp" pattern="yyyy-MM-dd" locale="en"/>
         </tstamp>
 
+        <echo>Setting up build directory structure</echo>
         <mkdir dir="${work.dir}"/>
+        <mkdir dir="${work.dir}/classes"/>
+        <mkdir dir="${work.dir}/database"/>
+        <mkdir dir="${work.dir}/i18n"/>
+        <mkdir dir="${work.dir}/lib"/>
+        <mkdir dir="${work.dir}/web"/>
 
+        <mkdir dir="${build.dir}"/>
     </target>
-    <target name="plugin-build">
-      <echo>About to build</echo>
+	<target name="clean">
+        <delete>
+            <fileset dir="${work.dir}" includes="**/*"/>
+        </delete>
+	</target>
+	<macrodef name="compileplugin">
+        <attribute name="plugin"/>
+		<sequential>
+            <xmlproperty file="plugin.xml" prefix="@{plugin}" keeproot="false"/>
+            <echo>Parent plugin is ${@{plugin}.parentPlugin}</echo>
+		    <path id="openfire.libraries">
+				<fileset dir="${openfire.home}/build" includes="lib/*.jar"/>
+                <fileset dir="${openfire.home}/build" includes="lib/merge/*.jar"/>
+			    <fileset dir="${openfire.home}/target/openfire" includes="lib/openfire.jar"/>
+			</path>
+            <path id="plugin.dependencies">
+                <path refid="openfire.libraries"/>
+                <fileset dir="${openfire.home}/work/plugins-dev/${@{plugin}.parentPlugin}/target" includes="lib/*.jar"/>
+            </path>
+            <path id="plugin.classpath.source">
+                <path refid="plugin.dependencies"/>
+                <fileset dir="." includes="lib/*.jar"/>
+            </path>
+			<echo>Outputting compiled java to ${build.dir}</echo>
+            <of.javac destdir="${build.dir}" classpathref="plugin.classpath.source">
+                <src path="src/java"/>
+            </of.javac>
+		</sequential>
+	</macrodef>
+    <target name="plugin-build" depends="init">
+        <!-- Copy of root files -->
+        <copy file="plugin.xml" todir="${work.dir}"/>
+        <copy failonerror="false" file="readme.html" todir="${work.dir}" quiet="true"/>
+        <copy failonerror="false" file="changelog.html" todir="${work.dir}" quiet="true"/>
+        <copy failonerror="false" todir="${work.dir}" quiet="true">
+            <fileset dir="." includes="logo_*.*"/>
+        </copy>
+        <!-- Copy of classes dir -->
+        <copy failonerror="false" todir="${work.dir}/classes" quiet="true">
+            <fileset dir="classes" includes="*"/>
+        </copy>
+        <!-- Copy of database dir -->
+        <copy failonerror="false" todir="${work.dir}/database" quiet="true">
+            <fileset dir="database" includes="*"/>
+        </copy>
+        <!-- Copy of i18n dir -->
+        <copy failonerror="false" todir="${work.dir}/i18n" quiet="true">
+            <fileset dir="i18n" includes="*"/>
+        </copy>
+        <!-- Copy of lib dir -->
+        <copy failonerror="false" todir="${work.dir}/lib" quiet="true">
+            <fileset dir="lib" includes="*"/>
+        </copy>
+
+        <!-- Now we do the build of the plugin-NAME.jar from the src/java files -->
+        <delete>
+            <fileset dir="${build.dir}" includes="**/*"/>
+        </delete>
+        <mkdir dir="${build.dir}"/>
+
+        <compileplugin plugin="${plugin.name}"/>
     </target>
 </project>
