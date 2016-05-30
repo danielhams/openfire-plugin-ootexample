@@ -77,5 +77,11 @@
 	<classpathentry kind="lib" path="/openfire/build/lib/merge/xpp3.jar"/>
 	<classpathentry kind="lib" path="/openfire/target/openfire/lib/openfire.jar"/>
 	<classpathentry kind="lib" path="lib/examplelib.jar"/>
+	<classpathentry kind="lib" path="/openfire/target/openfire/plugins/fastpath/lib/commons-fileupload-1.0.jar"/>
+	<classpathentry kind="lib" path="/openfire/target/openfire/plugins/fastpath/lib/fastpath-lib.jar"/>
+	<classpathentry kind="lib" path="/openfire/target/openfire/plugins/fastpath/lib/lucene.jar"/>
+	<classpathentry kind="lib" path="/openfire/target/openfire/plugins/fastpath/lib/plugin-fastpath-jspc.jar"/>
+	<classpathentry kind="lib" path="/openfire/target/openfire/plugins/fastpath/lib/plugin-fastpath.jar"/>
+	<classpathentry kind="lib" path="/openfire/target/openfire/plugins/fastpath/lib/xstream.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
