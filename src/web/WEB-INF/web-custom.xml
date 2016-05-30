@@ -2,12 +2,12 @@
 <web-app>
     <!-- Servlets -->
     <servlet>
-        <servlet-name>ExampleServlet</servlet-name>
-        <servlet-class>example.ExampleServlet</servlet-class>
+        <servlet-name>ExamplePluginServlet</servlet-name>
+        <servlet-class>example.ExamplePluginServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-      <servlet-name>ExampleServlet</servlet-name>
+      <servlet-name>ExamplePluginServlet</servlet-name>
       <url-pattern>/*</url-pattern>
     </servlet-mapping>
 </web-app>

@@ -12,7 +12,7 @@ public class ExamplePlugin implements Plugin
 {
     private final static Logger LOG = LoggerFactory.getLogger( ExamplePlugin.class );
 
-    public static final String PLUGIN_NAME = "example";
+    public static final String PLUGIN_NAME = "ootexample";
 
     private final ExampleLib exampleLib = new ExampleLib();
 
