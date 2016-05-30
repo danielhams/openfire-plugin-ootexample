@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <!-- Main plugin class -->
+    <class>example.ExamplePlugin</class>
+
+    <!-- Plugin meta-data -->
+    <name>Example Out Of Tree Plugin</name>
+    <description>An example plugin that builds outside of the openfire source tree.</description>
+    <author>Daniel Hams</author>
+    <version>0.1</version>
+    <date>30/05/2016</date>
+    <url>https://github.com/danielhams/openfire-plugin-ootexample</url>
+    <minServerVersion>4.0.0</minServerVersion>
+    <parentPlugin>fastpath</parentPlugin>
+    <licenseType>apache</licenseType>
+
+    <!-- Admin console entries -->
+    <adminconsole>
+        <tab id="ootexample" name="Example Out Of Tree" url="example-page.jsp" description="Example OOT">
+            <sidebar id="ootexamplesb" name="Out Of Tree Sidebar">
+                <item id="example-page" name="Example Page" url="example-page.jsp"/>
+            </sidebar>
+        </tab>
+    </adminconsole>
+</plugin>
