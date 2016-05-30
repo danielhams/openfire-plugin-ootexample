@@ -139,11 +139,11 @@
 		<sequential>
             <xmlproperty file="plugin.xml" prefix="@{plugin}" keeproot="false"/>
             <echo>Parent plugin is ${@{plugin}.parentPlugin}</echo>
-		    <path id="openfire.libraries">
-				<fileset dir="${openfire.home}/build" includes="lib/*.jar"/>
+            <path id="openfire.libraries">
+                <fileset dir="${openfire.home}/build" includes="lib/*.jar"/>
                 <fileset dir="${openfire.home}/build" includes="lib/merge/*.jar"/>
-			    <fileset dir="${openfire.home}/target/openfire" includes="lib/openfire.jar"/>
-			</path>
+                <fileset dir="${openfire.home}/target/openfire" includes="lib/openfire.jar"/>
+            </path>
             <path id="plugin.dependencies">
                 <path refid="openfire.libraries"/>
                 <fileset dir="${openfire.home}/work/plugins-dev/${@{plugin}.parentPlugin}/target" includes="lib/*.jar"/>
@@ -152,10 +152,47 @@
                 <path refid="plugin.dependencies"/>
                 <fileset dir="." includes="lib/*.jar"/>
             </path>
-			<echo>Outputting compiled java to ${build.dir}</echo>
+            <echo>Building Java classes to ${build.dir}/classes</echo>
+            <of.javac destdir="${build.dir}/classes" classpathref="plugin.classpath.source">
+                <src path="src/java"/>
+            </of.javac>
+		</sequential>
+	</macrodef>
+	<macrodef name="compilejsps">
+		<attribute name="plugin"/>
+		<sequential>
+			<xmlproperty file="plugin.xml" prefix="@{plugin}" keeproot="false"/>
+            <path id="openfire.libraries">
+                <fileset dir="${openfire.home}/build" includes="lib/*.jar"/>
+                <fileset dir="${openfire.home}/build" includes="lib/merge/*.jar"/>
+                <fileset dir="${openfire.home}/target/openfire" includes="lib/openfire.jar"/>
+                <path refid="ant.dependencies"/>
+            </path>
+            <path id="plugin.dependencies">
+                <path refid="openfire.libraries"/>
+                <fileset dir="${openfire.home}/work/plugins-dev/${@{plugin}.parentPlugin}/target" includes="lib/*.jar"/>
+            </path>
+            <path id="plugin.classpath.source">
+                <path refid="plugin.dependencies"/>
+                <fileset dir="." includes="lib/*.jar"/>
+                <fileset dir="${work.dir}" includes="lib/plugin-${plugin.name}.jar"/>
+            </path>
+            <echo>Compiling JSP pages to Java in ${build.dir}/jsps</echo>
+			<java classname="org.apache.jasper.JspC" fork="true">
+				<classpath>
+                    <pathelement location="${java.home}/../lib/tools.jar"/>
+				    <path refid="plugin.classpath.source"/>
+				</classpath>
+                <arg line="-uriroot 'src/web'"/>
+                <arg line="-d '${build.dir}/jsps'"/>
+                <arg line="-p org.jivesoftware.openfire.plugin.@{plugin}"/>
+                <arg line="-webxml '${build.dir}/jsps/web.xml'"/>
+			</java>
+            <!--
             <of.javac destdir="${build.dir}" classpathref="plugin.classpath.source">
                 <src path="src/java"/>
             </of.javac>
+            -->
 		</sequential>
 	</macrodef>
     <target name="plugin-build" depends="init">
@@ -188,7 +225,16 @@
             <fileset dir="${build.dir}" includes="**/*"/>
         </delete>
         <mkdir dir="${build.dir}"/>
+        <mkdir dir="${build.dir}/classes"/>
+        <mkdir dir="${build.dir}/jsps"/>
 
         <compileplugin plugin="${plugin.name}"/>
+
+        <!-- Make a jar of the compiled classes -->
+        <jar jarfile="${work.dir}/lib/plugin-${plugin.name}.jar" update="true">
+            <fileset dir="${build.dir}/classes" includes="**/*.*"/>
+        </jar>
+
+        <compilejsps plugin="${plugin.name}"/>
     </target>
 </project>
