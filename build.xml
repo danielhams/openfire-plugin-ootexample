@@ -133,6 +133,9 @@
         <delete>
             <fileset dir="${work.dir}" includes="**/*"/>
         </delete>
+        <delete>
+            <fileset dir="${build.dir}" includes="**/*"/>
+        </delete>
 	</target>
 	<macrodef name="compileplugin">
         <attribute name="plugin"/>
@@ -188,11 +191,51 @@
                 <arg line="-p org.jivesoftware.openfire.plugin.@{plugin}"/>
                 <arg line="-webxml '${build.dir}/jsps/web.xml'"/>
 			</java>
-            <!--
-            <of.javac destdir="${build.dir}" classpathref="plugin.classpath.source">
-                <src path="src/java"/>
+
+            <!-- Use xmltask to merge the generated web.xml file and a developer one (if any) -->
+            <available property="plugin.webxml.available"
+                       type="file" file="src/web/WEB-INF/web-custom.xml"/>
+
+            <mkdir dir="${work.dir}/web/WEB-INF"/>
+
+            <if>
+                <equals arg1="${plugin.webxml.available}" arg2="true"/>
+                <then>
+                    <echo>Merging generated web.xml with custom</echo>
+                    <!-- Copy the servlet and servlet-mapping elements from the original web.xml to a temp buffer.
+                         Note: The original web.xml can only contain one servlet and servlet-mapping -->
+                    <xmltask source="src/web/WEB-INF/web-custom.xml">
+                        <xmlcatalog refid="dtds"/>
+                        <!--<copy path="//*[name()='web-app']/*[name()='servlet'][last()]" buffer="foobar"/>-->
+                        <copy path="//web-app/servlet[last()]" buffer="foobar"/>
+                        <print buffer="foobar"/>
+                        <copy path="//web-app/servlet-mapping[last()]" buffer="foobar2"/>
+                        <print buffer="foobar2"/>
+                    </xmltask>
+                    <!-- Add the copied servlet and servlet-mapping elements to the generated web.xml -->
+                    <xmltask source="${build.dir}/jsps/web.xml"
+                             dest="${work.dir}/web/WEB-INF/web.xml">
+                        <xmlcatalog refid="dtds"/>
+                        <insert path="/web-app/servlet[last()]" buffer="foobar"
+                                position="after"/>
+                        <insert path="/web-app/servlet-mapping[last()]" buffer="foobar2"
+                                position="after"/>
+                    </xmltask>
+
+                </then>
+                <else>
+                    <echo>Copying generated web.xml</echo>
+                    <copy todir="${work.dir}/web/WEB-INF"
+                          file="${build.dir}/jsps/web.xml"
+                          overwrite="${overwrite}"/>
+                </else>
+            </if>
+
+		    <echo>Compiling JSP java classes</echo>
+			<mkdir dir="${build.dir}/jspc"/>
+            <of.javac destdir="${build.dir}/jspc" classpathref="plugin.classpath.source">
+                <src path="${build.dir}/jsps"/>
             </of.javac>
-            -->
 		</sequential>
 	</macrodef>
     <target name="plugin-build" depends="init">
@@ -236,5 +279,14 @@
         </jar>
 
         <compilejsps plugin="${plugin.name}"/>
+
+        <!-- Make a jar of the compiled JSPs -->
+        <jar jarfile="${work.dir}/lib/plugin-${plugin.name}-jspc.jar" update="true">
+            <fileset dir="${build.dir}/jspc" includes="**/*.class"/>
+        </jar>
+
+        <jar jarfile="${plugin.name}.jar">
+            <fileset dir="${work.dir}"/>
+        </jar>
     </target>
 </project>
