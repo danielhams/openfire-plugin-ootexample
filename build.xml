@@ -208,9 +208,7 @@
                         <xmlcatalog refid="dtds"/>
                         <!--<copy path="//*[name()='web-app']/*[name()='servlet'][last()]" buffer="foobar"/>-->
                         <copy path="//web-app/servlet[last()]" buffer="foobar"/>
-                        <print buffer="foobar"/>
                         <copy path="//web-app/servlet-mapping[last()]" buffer="foobar2"/>
-                        <print buffer="foobar2"/>
                     </xmltask>
                     <!-- Add the copied servlet and servlet-mapping elements to the generated web.xml -->
                     <xmltask source="${build.dir}/jsps/web.xml"

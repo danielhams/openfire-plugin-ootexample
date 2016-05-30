@@ -3,3 +3,5 @@ bin
 classes
 build
 work
+# Ignore any built jar at the top level.
+*.jar
