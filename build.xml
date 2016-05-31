@@ -276,13 +276,32 @@
             <fileset dir="${build.dir}/classes" includes="**/*.*"/>
         </jar>
 
-        <compilejsps plugin="${plugin.name}"/>
+        <resourcecount property="plugin.jsps.count">
+            <fileset dir="src/web" erroronmissingdir="false">
+                <include name="*.jsp"/>
+            </fileset>
+        </resourcecount>
+        <echo>Found ${plugin.jsps.count} jsp files</echo>
+        <if>
+            <equals arg1="${plugin.jsps.count}" arg2="0"/>
+            <then>
+                <if>
+                    <available file="src/web/WEB-INF/web-custom.xml"/>
+                    <then>
+                        <copy file="src/web/WEB-INF/web-custom.xml" tofile="${work.dir}}/web/WEB-INF/web-xml"/>
+                    </then>
+                </if>
+            </then>
+            <else>
+                <compilejsps plugin="${plugin.name}"/>
 
-        <!-- Make a jar of the compiled JSPs -->
-        <jar jarfile="${work.dir}/lib/plugin-${plugin.name}-jspc.jar" update="true">
-            <fileset dir="${build.dir}/jspc" includes="**/*.class"/>
-        </jar>
-
+                <!-- Make a jar of the compiled JSPs -->
+                <jar jarfile="${work.dir}/lib/plugin-${plugin.name}-jspc.jar" update="true">
+                    <fileset dir="${build.dir}/jspc" includes="**/*.class"/>
+                </jar>
+            </else>
+        </if>
+        <!-- Build plugin jar -->
         <jar jarfile="${plugin.name}.jar">
             <fileset dir="${work.dir}"/>
         </jar>
