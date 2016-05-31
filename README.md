@@ -10,6 +10,12 @@ This project intends to provide an example standalone project and build script t
 Building
 --------
 
-Building is done using Ant. The only requirement is that the environment variable OPENFIRE_HOME is set to the root directory of an openfire source code repository.
+Building is done using Ant. Before building this project you must:
+
+* Ensure that OPENFIRE_HOME is set to the root directory of an openfire source code repository.
+
+e.g. On Linux #export OPENFIRE_HOME=/home/dan/Sources/Openfire.git#
+
+* Perform a build of the openfire server inside the OPENFIRE_HOME and any related plugins
 
 After building the openfire plugin may be found in the target directory.
