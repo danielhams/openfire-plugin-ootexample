@@ -12,7 +12,7 @@
         * JDK 1.7 or higher
 -->
 
-<project name="Openfire Out Of Tree Plugin Example" default="plugin-build" basedir=".">
+<project name="Openfire Out Of Tree Plugin Example" default="plugin-build" basedir="." xmlns:if="ant:if" xmlns:unless="ant:unless">
 
     <description>
         Openfire out of tree build script.
@@ -137,9 +137,9 @@
             <fileset dir="${build.dir}" includes="**/*"/>
         </delete>
 	</target>
-	<macrodef name="compileplugin">
+    <macrodef name="compileplugin">
         <attribute name="plugin"/>
-		<sequential>
+        <sequential>
             <xmlproperty file="plugin.xml" prefix="@{plugin}" keeproot="false"/>
             <echo>Parent plugin is ${@{plugin}.parentPlugin}</echo>
             <path id="openfire.libraries">
@@ -149,7 +149,9 @@
             </path>
             <path id="plugin.dependencies">
                 <path refid="openfire.libraries"/>
-                <fileset dir="${openfire.home}/work/plugins-dev/${@{plugin}.parentPlugin}/target" includes="lib/*.jar"/>
+                <fileset dir="${openfire.home}/work/plugins-dev">
+                    <include name="${@{plugin}.parentPlugin}/target/lib/*.jar" if:set="${@{plugin}.parentPlugin}"/>
+                </fileset>
             </path>
             <path id="plugin.classpath.source">
                 <path refid="plugin.dependencies"/>
@@ -159,8 +161,8 @@
             <of.javac destdir="${build.dir}/classes" classpathref="plugin.classpath.source">
                 <src path="src/java"/>
             </of.javac>
-		</sequential>
-	</macrodef>
+        </sequential>
+    </macrodef>
 	<macrodef name="compilejsps">
 		<attribute name="plugin"/>
 		<sequential>
