@@ -140,8 +140,16 @@
     <macrodef name="compileplugin">
         <attribute name="plugin"/>
         <sequential>
-            <xmlproperty file="plugin.xml" prefix="@{plugin}" keeproot="false"/>
-            <echo>Parent plugin is ${@{plugin}.parentPlugin}</echo>
+            <xmlproperty file="plugin.xml" prefix="plugin.xmlproperty" keeproot="false"/>
+            <condition property="plugin.parent" value="${plugin.xmlproperty.parentPlugin}">
+                <isset property="plugin.xmlproperty.parentPlugin"/>
+            </condition>
+            <if>
+                <isset property="plugin.parent"/>
+                <then>
+                    <echo>Parent plugin is ${plugin.parent}</echo>
+                </then>
+            </if>
             <path id="openfire.libraries">
                 <fileset dir="${openfire.home}/build" includes="lib/*.jar"/>
                 <fileset dir="${openfire.home}/build" includes="lib/merge/*.jar"/>
@@ -150,7 +158,7 @@
             <path id="plugin.dependencies">
                 <path refid="openfire.libraries"/>
                 <fileset dir="${openfire.home}/work/plugins-dev">
-                    <include name="${@{plugin}.parentPlugin}/target/lib/*.jar" if:set="${@{plugin}.parentPlugin}"/>
+                    <include name="${plugin.parent}/target/lib/*.jar" if:set="${plugin.parent}"/>
                 </fileset>
             </path>
             <path id="plugin.classpath.source">
@@ -163,10 +171,19 @@
             </of.javac>
         </sequential>
     </macrodef>
-	<macrodef name="compilejsps">
-		<attribute name="plugin"/>
-		<sequential>
-			<xmlproperty file="plugin.xml" prefix="@{plugin}" keeproot="false"/>
+    <macrodef name="compilejsps">
+        <attribute name="plugin"/>
+        <sequential>
+            <xmlproperty file="plugin.xml" prefix="plugin.xmlproperty" keeproot="false"/>
+            <condition property="plugin.parent" value="${plugin.xmlproperty.parentPlugin}">
+                <isset property="plugin.xmlproperty.parentPlugin"/>
+            </condition>
+            <if>
+                <isset property="plugin.parent"/>
+                <then>
+                    <echo>Parent plugin is ${plugin.parent}</echo>
+                </then>
+            </if>
             <path id="openfire.libraries">
                 <fileset dir="${openfire.home}/build" includes="lib/*.jar"/>
                 <fileset dir="${openfire.home}/build" includes="lib/merge/*.jar"/>
@@ -175,7 +192,7 @@
             </path>
             <path id="plugin.dependencies">
                 <path refid="openfire.libraries"/>
-                <fileset dir="${openfire.home}/work/plugins-dev/${@{plugin}.parentPlugin}/target" includes="lib/*.jar"/>
+                <fileset dir="${openfire.home}/work/plugins-dev/${plugin.parent}/target" includes="lib/*.jar" if:set="${plugin.parent}"/>
             </path>
             <path id="plugin.classpath.source">
                 <path refid="plugin.dependencies"/>
@@ -183,16 +200,17 @@
                 <fileset dir="${work.dir}" includes="lib/plugin-${plugin.name}.jar"/>
             </path>
             <echo>Compiling JSP pages to Java in ${build.dir}/jsps</echo>
-			<java classname="org.apache.jasper.JspC" fork="true">
-				<classpath>
+            <mkdir dir="src/web"/>
+            <java classname="org.apache.jasper.JspC" fork="true">
+                <classpath>
                     <pathelement location="${java.home}/../lib/tools.jar"/>
-				    <path refid="plugin.classpath.source"/>
-				</classpath>
+                    <path refid="plugin.classpath.source"/>
+                </classpath>
                 <arg line="-uriroot 'src/web'"/>
                 <arg line="-d '${build.dir}/jsps'"/>
                 <arg line="-p org.jivesoftware.openfire.plugin.@{plugin}"/>
                 <arg line="-webxml '${build.dir}/jsps/web.xml'"/>
-			</java>
+            </java>
 
             <!-- Use xmltask to merge the generated web.xml file and a developer one (if any) -->
             <available property="plugin.webxml.available"
@@ -231,13 +249,13 @@
                 </else>
             </if>
 
-		    <echo>Compiling JSP java classes</echo>
-			<mkdir dir="${build.dir}/jspc"/>
+            <echo>Compiling JSP java classes</echo>
+            <mkdir dir="${build.dir}/jspc"/>
             <of.javac destdir="${build.dir}/jspc" classpathref="plugin.classpath.source">
                 <src path="${build.dir}/jsps"/>
             </of.javac>
-		</sequential>
-	</macrodef>
+        </sequential>
+    </macrodef>
     <target name="plugin-build" depends="init">
         <!-- Copy of root files -->
         <copy file="plugin.xml" todir="${work.dir}"/>
