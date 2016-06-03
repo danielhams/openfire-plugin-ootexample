@@ -16,6 +16,7 @@ public class ExamplePlugin implements Plugin
 
     private final ExampleLib exampleLib = new ExampleLib();
 
+    @SuppressWarnings("unused")
     private WorkgroupManager wm;
 
     @Override
